@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMetadata({
 export default function SearchPage() {
   const documents = getSearchDocuments();
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Search", path: "/search" }]} />
       <h1 className="mt-4 text-3xl font-bold">Search</h1>
       <p className="mt-2 text-muted-foreground mb-8">

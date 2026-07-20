@@ -56,7 +56,7 @@ export default async function ProblemPage({
   const toc = problem.content.map((s) => ({ id: s.id, title: s.title }));
 
   return (
-    <div className="container-af py-8">
+    <div className="container py-8">
       <JsonLd
         data={articleJsonLd({
           title: problem.title,

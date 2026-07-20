@@ -39,7 +39,7 @@ export default async function DifficultyPage({
   const problems = getProblemsBySlugs(data.problemSlugs);
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs
         items={[
           { name: "Home", path: "/" },

@@ -24,7 +24,7 @@ export default function HtmlSitemapPage() {
   const blogs = getBlogIndex();
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <h1 className="text-3xl font-bold">Sitemap</h1>
       <div className="mt-8 grid md:grid-cols-2 gap-8 text-sm">
         <section>

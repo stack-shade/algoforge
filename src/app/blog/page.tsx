@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMetadata({
 export default function BlogPage() {
   const posts = getBlogIndex();
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Blog", path: "/blog" }]} />
       <h1 className="mt-4 text-3xl font-bold">Blog</h1>
       <div className="mt-8 space-y-4">

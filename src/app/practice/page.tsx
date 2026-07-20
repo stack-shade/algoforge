@@ -18,7 +18,7 @@ export default function PracticePage() {
   const daily = problems[dayIndex];
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Practice", path: "/practice" }]} />
       <h1 className="mt-4 text-3xl font-bold">Practice</h1>
       <p className="mt-2 text-muted-foreground">Local modes — no account required.</p>

@@ -16,7 +16,7 @@ export default function ProblemsPage() {
   const problems = getProblemsIndex();
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Problems", path: "/problems" }]} />
       <h1 className="mt-4 text-3xl font-bold tracking-tight">Problems</h1>
       <p className="mt-2 text-muted-foreground max-w-2xl">

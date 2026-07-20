@@ -12,7 +12,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function DashboardPage() {
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Dashboard", path: "/dashboard" }]} />
       <h1 className="mt-4 text-3xl font-bold">Progress</h1>
       <p className="mt-2 text-muted-foreground">

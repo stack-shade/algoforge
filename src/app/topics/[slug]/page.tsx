@@ -39,7 +39,7 @@ export default async function TopicPage({
   const problems = getProblemsBySlugs(topic.problemSlugs);
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <JsonLd
         data={articleJsonLd({
           title: topic.name,

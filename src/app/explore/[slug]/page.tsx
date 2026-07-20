@@ -40,7 +40,7 @@ export default async function ExploreLandingPage({
   const problems = getProblemsBySlugs(landing.problemSlugs);
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <JsonLd data={faqJsonLd(landing.faqs)} />
       <Breadcrumbs
         items={[

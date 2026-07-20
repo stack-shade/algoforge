@@ -11,7 +11,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function SystemDesignPage() {
   return (
-    <div className="container-af py-10 max-w-3xl">
+    <div className="container py-10 max-w-3xl">
       <Breadcrumbs
         items={[
           { name: "Home", path: "/" },

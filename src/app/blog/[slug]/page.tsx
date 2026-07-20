@@ -36,7 +36,7 @@ export default async function BlogPostPage({
   const html = await markdownToHtml(post.bodyMarkdown);
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <JsonLd
         data={articleJsonLd({
           title: post.title,

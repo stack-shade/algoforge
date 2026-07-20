@@ -25,7 +25,7 @@ const terms = [
 
 export default function GlossaryPage() {
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Glossary", path: "/glossary" }]} />
       <h1 className="mt-4 text-3xl font-bold">Glossary</h1>
       <dl className="mt-8 space-y-4 max-w-3xl">

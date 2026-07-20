@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/config";
+import { Separator } from "@/components/ui/separator";
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-border bg-sidebar">
-      <div className="container-af py-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="mt-20 border-t border-border bg-muted/30">
+      <div className="container py-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="font-bold text-lg">{siteConfig.name}</p>
           <p className="mt-2 text-sm text-muted-foreground max-w-xs">
@@ -41,22 +42,21 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-border">
-        <div className="container-af py-4 flex flex-col sm:flex-row gap-2 justify-between text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} {siteConfig.name}. Educational use only.</p>
-          <p>
-            Solution code sourced under MIT from{" "}
-            <a
-              href={siteConfig.links.github}
-              className="underline hover:text-primary"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              kamyu104/LeetCode-Solutions
-            </a>
-            . Explanations are original AlgoForge content.
-          </p>
-        </div>
+      <Separator />
+      <div className="container py-4 flex flex-col sm:flex-row gap-2 justify-between text-xs text-muted-foreground">
+        <p>© {new Date().getFullYear()} {siteConfig.name}. Educational use only.</p>
+        <p>
+          Solution code sourced under MIT from{" "}
+          <a
+            href={siteConfig.links.github}
+            className="underline hover:text-primary"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            kamyu104/LeetCode-Solutions
+          </a>
+          . Explanations are original AlgoForge content.
+        </p>
       </div>
     </footer>
   );

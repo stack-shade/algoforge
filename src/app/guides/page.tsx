@@ -21,7 +21,7 @@ const guides = [
 
 export default function GuidesPage() {
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Guides", path: "/guides" }]} />
       <h1 className="mt-4 text-3xl font-bold">Guides</h1>
       <div className="mt-8 grid sm:grid-cols-2 gap-4">

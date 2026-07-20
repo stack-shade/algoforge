@@ -46,7 +46,7 @@ const tiers = [
 
 export default function PricingPage() {
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Pricing", path: "/pricing" }]} />
       <h1 className="mt-4 text-3xl font-bold">Pricing</h1>
       <p className="mt-2 text-muted-foreground max-w-xl">

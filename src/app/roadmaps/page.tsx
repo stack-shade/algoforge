@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMetadata({
 export default function RoadmapsPage() {
   const roadmaps = getRoadmapsIndex();
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Roadmaps", path: "/roadmaps" }]} />
       <h1 className="mt-4 text-3xl font-bold">Roadmaps</h1>
       <p className="mt-2 text-muted-foreground">Follow ordered paths instead of random problem lists.</p>

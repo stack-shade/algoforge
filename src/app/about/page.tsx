@@ -13,7 +13,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function AboutPage() {
   return (
-    <div className="container-af py-10 max-w-3xl">
+    <div className="container py-10 max-w-3xl">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "About", path: "/about" }]} />
       <h1 className="mt-4 text-3xl font-bold">About {siteConfig.name}</h1>
       <p className="mt-4 text-muted-foreground leading-relaxed">

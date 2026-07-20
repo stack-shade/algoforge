@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getManifest, getProblemsIndex, getTopicsIndex, getRoadmapsIndex } from "@/lib/data/problems";
 import { DifficultyBadge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function HomePage() {
   const manifest = getManifest();
@@ -10,9 +12,8 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent" />
-        <div className="container-af relative py-16 md:py-24">
+      <section className="border-b border-border">
+        <div className="container py-16 md:py-24">
           <p className="text-sm font-semibold text-primary tracking-wide uppercase mb-3">
             Interview mastery platform
           </p>
@@ -24,65 +25,57 @@ export default function HomePage() {
             solutions, Blind 75, Grind 169, company tracks, and roadmaps built for search and study.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/problems"
-              className="inline-flex h-11 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-            >
-              Browse problems
-            </Link>
-            <Link
-              href="/blind-75"
-              className="inline-flex h-11 items-center rounded-lg border border-border bg-card px-5 text-sm font-semibold hover:bg-muted"
-            >
-              Start Blind 75
-            </Link>
-            <Link
-              href="/search"
-              className="inline-flex h-11 items-center rounded-lg border border-border bg-card px-5 text-sm font-semibold hover:bg-muted"
-            >
-              Search
-            </Link>
+            <Button asChild size="lg">
+              <Link href="/problems">Browse problems</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/blind-75">Start Blind 75</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/search">Search</Link>
+            </Button>
           </div>
           {manifest && (
-            <dl className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
+            <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
               {[
                 ["Problems", manifest.problemCount],
                 ["Topics", manifest.topicCount],
                 ["Patterns", manifest.patternCount],
                 ["Landings", manifest.landingCount],
               ].map(([label, value]) => (
-                <div key={label as string} className="rounded-xl border border-border bg-card/80 p-4">
-                  <dt className="text-xs text-muted-foreground uppercase tracking-wide">{label}</dt>
-                  <dd className="mt-1 text-2xl font-bold tabular-nums">{value}</dd>
-                </div>
+                <Card key={label}>
+                  <CardContent className="p-4">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
+                  </CardContent>
+                </Card>
               ))}
-            </dl>
+            </div>
           )}
         </div>
       </section>
 
-      <section className="container-af py-14 grid lg:grid-cols-2 gap-10">
+      <section className="container py-14 grid lg:grid-cols-2 gap-10">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Featured problems</h2>
           <p className="mt-1 text-sm text-muted-foreground mb-4">
             Jump into high-signal interview classics.
           </p>
-          <ul className="space-y-2">
+          <div className="space-y-2">
             {problems.map((p) => (
-              <li key={p.slug}>
-                <Link
-                  href={`/problems/${p.slug}`}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2.5 hover:border-primary/40"
-                >
-                  <span className="font-medium">
-                    <span className="text-muted-foreground tabular-nums mr-2">#{p.number}</span>
-                    {p.title}
-                  </span>
-                  <DifficultyBadge difficulty={p.difficulty} />
-                </Link>
-              </li>
+              <Link
+                key={p.slug}
+                href={`/problems/${p.slug}`}
+                className="flex items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2.5 hover:border-primary/40"
+              >
+                <span className="font-medium">
+                  <span className="text-muted-foreground tabular-nums mr-2">#{p.number}</span>
+                  {p.title}
+                </span>
+                <DifficultyBadge difficulty={p.difficulty} />
+              </Link>
             ))}
-          </ul>
+          </div>
           {problems.length === 0 && (
             <p className="text-sm text-muted-foreground">
               Run <code className="bg-muted px-1 rounded">npm run pipeline</code> to generate data.
@@ -119,8 +112,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-border bg-sidebar">
-        <div className="container-af py-14">
+      <section className="border-y border-border bg-muted/30">
+        <div className="container py-14">
           <h2 className="text-2xl font-bold">Collections that convert practice into offers</h2>
           <div className="mt-6 grid md:grid-cols-3 gap-4">
             {[

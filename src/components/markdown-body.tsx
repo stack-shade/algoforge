@@ -14,7 +14,7 @@ export function MarkdownBody({ html }: { html: string }) {
 
   return (
     <div
-      className="prose-af"
+      className="prose prose-slate dark:prose-invert max-w-none"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

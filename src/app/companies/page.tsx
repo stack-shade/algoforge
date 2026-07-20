@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMetadata({
 export default function CompaniesPage() {
   const companies = getCompaniesIndex().sort((a, b) => b.problemCount - a.problemCount);
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Companies", path: "/companies" }]} />
       <h1 className="mt-4 text-3xl font-bold">Companies</h1>
       <p className="mt-2 text-muted-foreground">

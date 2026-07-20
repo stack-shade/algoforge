@@ -37,7 +37,7 @@ export default async function RoadmapPage({
   if (!roadmap) notFound();
 
   return (
-    <div className="container-af py-10">
+    <div className="container py-10">
       <Breadcrumbs
         items={[
           { name: "Home", path: "/" },
