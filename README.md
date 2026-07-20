@@ -8,7 +8,6 @@ AlgoForge is a production-oriented LeetCode learning platform:
 - Data pipeline over [kamyu104/LeetCode-Solutions](https://github.com/kamyu104/LeetCode-Solutions) (MIT) — **not a mirror**
 - SEO: sitemaps, JSON-LD, programmatic landings, Blind 75 / Grind 169
 - Local progress (bookmarks, confidence, streaks) with a pluggable `UserStore` for future cloud sync
-- Cloudflare-ready (`wrangler.toml`, GH Actions)
 
 ## Quick start
 

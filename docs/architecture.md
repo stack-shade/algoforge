@@ -2,10 +2,10 @@
 
 ## Overview
 
-AlgoForge is a static-first Next.js App Router site optimized for SEO and edge delivery on Cloudflare Pages.
+AlgoForge is a static-first Next.js App Router site optimized for SEO and static hosting.
 
 ```
-GitHub source (kamyu104) → scripts/pipeline → data/generated/*.json → Next.js SSG → Cloudflare
+GitHub source (kamyu104) → scripts/pipeline → data/generated/*.json → Next.js SSG → static export
 ```
 
 ## Layers
@@ -13,7 +13,7 @@ GitHub source (kamyu104) → scripts/pipeline → data/generated/*.json → Next
 1. **Data pipeline** (`scripts/`) — fetch, parse, content generation, search index, sitemaps
 2. **Generated graph** (`data/generated/`) — problems, topics, patterns, companies, landings
 3. **App** (`src/`) — RSC pages, SEO helpers, local user store
-4. **Edge** (`wrangler.toml`, future Workers) — sync, newsletter, rate limits
+4. **Hosting** — static export to GitHub Pages
 
 ## Content policy
 

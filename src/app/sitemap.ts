@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url.replace(/\/$/, "");
   const now = new Date();
 
-  // Cap extremely large sitemaps for initial deploy; Cloudflare/Google handle multi-sitemaps later
+  // Cap extremely large sitemaps for initial deploy
   const limited = paths.slice(0, 45000);
 
   return limited.map((path) => ({
