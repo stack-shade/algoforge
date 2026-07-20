@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getUserStore, type UserState } from "@/lib/user/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+function formatTime(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
 
 export function DashboardClient() {
   const [state, setState] = useState<UserState | null>(null);
@@ -15,24 +24,120 @@ export function DashboardClient() {
     return <p className="text-sm text-muted-foreground">Loading local progress…</p>;
   }
 
-  const solved = Object.values(state.progress).filter((p) => p.status === "solved").length;
-  const attempted = Object.values(state.progress).filter((p) => p.status === "attempted").length;
+  const progresses = Object.values(state.progress);
+  const solved = progresses.filter((p) => p.status === "solved").length;
+  const attempted = progresses.filter((p) => p.status === "attempted").length;
+  const review = progresses.filter((p) => p.status === "review").length;
+  const totalTime = progresses.reduce((sum, p) => sum + (p.timeSpent || 0), 0);
+  const noted = progresses.filter((p) => (p.notes || "").trim().length > 0).length;
+  const tagged = progresses.filter((p) => (p.customTags || []).length > 0).length;
+  const reminders = Object.entries(state.reminders || {});
 
   return (
     <div className="space-y-8">
-      <div className="grid sm:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <p className="text-xs text-muted-foreground uppercase">Streak</p>
-          <p className="mt-1 text-3xl font-bold">{state.streak.current} days</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <p className="text-xs text-muted-foreground uppercase">Solved</p>
-          <p className="mt-1 text-3xl font-bold">{solved}</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <p className="text-xs text-muted-foreground uppercase">Attempted</p>
-          <p className="mt-1 text-3xl font-bold">{attempted}</p>
-        </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Streak</p>
+            <p className="mt-1 text-3xl font-bold">{state.streak.current} days</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Solved</p>
+            <p className="mt-1 text-3xl font-bold">{solved}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Attempted</p>
+            <p className="mt-1 text-3xl font-bold">{attempted}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Needs Review</p>
+            <p className="mt-1 text-3xl font-bold">{review}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Time Spent</p>
+            <p className="mt-1 text-3xl font-bold">{formatTime(totalTime)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">With Notes</p>
+            <p className="mt-1 text-3xl font-bold">{noted}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Tagged</p>
+            <p className="mt-1 text-3xl font-bold">{tagged}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5">
+            <p className="text-xs text-muted-foreground uppercase">Bookmarks</p>
+            <p className="mt-1 text-3xl font-bold">{state.bookmarks.length}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Study Queue ({state.studyQueue.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {state.studyQueue.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Add problems from any solution page to build a queue.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {state.studyQueue.map((slug) => (
+                  <li key={slug}>
+                    <Link
+                      href={`/problems/${slug}`}
+                      className="text-primary hover:underline"
+                    >
+                      {slug}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Review Reminders ({reminders.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {reminders.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Set a reminder on any problem to review it later.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {reminders.map(([slug, date]) => (
+                  <li key={slug} className="flex items-center justify-between text-sm">
+                    <Link href={`/problems/${slug}`} className="text-primary hover:underline">
+                      {slug}
+                    </Link>
+                    <span className="text-muted-foreground">
+                      {new Date(date).toLocaleDateString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <section>

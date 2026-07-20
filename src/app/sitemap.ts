@@ -5,7 +5,7 @@ import { siteConfig } from "@/lib/config";
 export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = getSitemapPaths();
+  const paths = Array.from(new Set([...getSitemapPaths(), "/"]));
   const base = siteConfig.url.replace(/\/$/, "");
   const now = new Date();
 

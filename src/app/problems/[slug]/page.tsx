@@ -15,6 +15,7 @@ import { CodeTabs } from "@/components/problem/code-tabs";
 import { BookmarkButton } from "@/components/problem/bookmark-button";
 import { ConfidenceTracker } from "@/components/problem/confidence-tracker";
 import { ProblemVisualizer } from "@/components/problem/problem-visualizer";
+import { StudyPanel } from "@/components/problem/study-panel";
 import { MarkdownBody } from "@/components/markdown-body";
 import { markdownToHtml } from "@/lib/markdown";
 import { ProblemList } from "@/components/problem/problem-list";
@@ -229,6 +230,7 @@ export default async function ProblemPage({
 
         <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
           <ConfidenceTracker slug={problem.slug} />
+          <StudyPanel slug={problem.slug} title={problem.title} />
           <nav
             aria-label="Table of contents"
             className="rounded-xl border border-border bg-card p-4 hidden lg:block"
