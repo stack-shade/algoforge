@@ -6,16 +6,16 @@ export type ProgressStatus = "todo" | "attempted" | "solved" | "review";
 
 export interface ProblemProgress {
   status: ProgressStatus;
-  confidence: number; // 1-5
+  confidence: number;
   notes: string;
-  lastSeen: string; // ISO
-  timeSpent: number; // seconds
+  lastSeen: string;
+  timeSpent: number;
   attempts: AttemptRecord[];
   customTags: string[];
 }
 
 export interface AttemptRecord {
-  timestamp: string; // ISO
+  timestamp: string;
   status: ProgressStatus;
   confidence: number;
 }
@@ -25,7 +25,7 @@ export interface UserState {
   progress: Record<string, ProblemProgress>;
   streak: { current: number; lastDate: string | null };
   studyQueue: string[];
-  reminders: Record<string, string>; // slug -> ISO date
+  reminders: Record<string, string>;
   version: number;
 }
 
@@ -42,11 +42,20 @@ export interface UserStore {
   removeCustomTag(slug: string, tag: string): UserState;
   logAttempt(slug: string, status: ProgressStatus, confidence: number): UserState;
   updateTimeSpent(slug: string, seconds: number): UserState;
-  /** Future cloud sync */
   sync?(): Promise<void>;
 }
 
 const STORAGE_KEY = "algoforge:user:v1";
+
+const emptyProgress = (): ProblemProgress => ({
+  status: "todo",
+  confidence: 0,
+  notes: "",
+  lastSeen: new Date().toISOString(),
+  timeSpent: 0,
+  attempts: [],
+  customTags: [],
+});
 
 const defaultState = (): UserState => ({
   bookmarks: [],
@@ -57,6 +66,49 @@ const defaultState = (): UserState => ({
   version: 1,
 });
 
+function normalizeState(input: unknown): UserState {
+  const parsed = input && typeof input === "object" ? (input as Partial<UserState>) : {};
+  const rawProgress = parsed.progress ?? {};
+
+  const progress = Object.fromEntries(
+    Object.entries(rawProgress).map(([slug, value]) => {
+      const item = value && typeof value === "object" ? (value as Partial<ProblemProgress>) : {};
+      return [
+        slug,
+        {
+          ...emptyProgress(),
+          ...item,
+          attempts: Array.isArray(item.attempts) ? item.attempts : [],
+          customTags: Array.isArray(item.customTags) ? item.customTags : [],
+          timeSpent: typeof item.timeSpent === "number" ? item.timeSpent : 0,
+        },
+      ];
+    }),
+  );
+
+  const streak =
+    parsed.streak && typeof parsed.streak === "object"
+      ? parsed.streak
+      : defaultState().streak;
+
+  return {
+    ...defaultState(),
+    ...parsed,
+    bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
+    progress,
+    streak: {
+      current: typeof streak.current === "number" ? streak.current : 0,
+      lastDate: typeof streak.lastDate === "string" ? streak.lastDate : null,
+    },
+    studyQueue: Array.isArray(parsed.studyQueue) ? parsed.studyQueue : [],
+    reminders:
+      parsed.reminders && typeof parsed.reminders === "object"
+        ? parsed.reminders
+        : {},
+    version: 1,
+  };
+}
+
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -64,10 +116,11 @@ function todayKey(): string {
 export class LocalStorageUserStore implements UserStore {
   getState(): UserState {
     if (typeof window === "undefined") return defaultState();
+
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState();
-      return { ...defaultState(), ...JSON.parse(raw) } as UserState;
+      return normalizeState(JSON.parse(raw));
     } catch {
       return defaultState();
     }
@@ -90,21 +143,13 @@ export class LocalStorageUserStore implements UserStore {
 
   setProgress(slug: string, patch: Partial<ProblemProgress>): UserState {
     const state = this.getState();
-    const prev = state.progress[slug] ?? {
-      status: "todo" as ProgressStatus,
-      confidence: 0,
-      notes: "",
-      lastSeen: new Date().toISOString(),
-      timeSpent: 0,
-      attempts: [],
-      customTags: [],
-    };
+    const previous = state.progress[slug] ?? emptyProgress();
     return this.save({
       ...state,
       progress: {
         ...state.progress,
         [slug]: {
-          ...prev,
+          ...previous,
           ...patch,
           lastSeen: new Date().toISOString(),
         },
@@ -116,11 +161,13 @@ export class LocalStorageUserStore implements UserStore {
     const state = this.getState();
     const today = todayKey();
     if (state.streak.lastDate === today) return state;
+
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yKey = yesterday.toISOString().slice(0, 10);
     const current =
       state.streak.lastDate === yKey ? state.streak.current + 1 : 1;
+
     return this.save({
       ...state,
       streak: { current, lastDate: today },
@@ -130,17 +177,14 @@ export class LocalStorageUserStore implements UserStore {
   addToStudyQueue(slug: string): UserState {
     const state = this.getState();
     if (state.studyQueue.includes(slug)) return state;
-    return this.save({
-      ...state,
-      studyQueue: [...state.studyQueue, slug],
-    });
+    return this.save({ ...state, studyQueue: [...state.studyQueue, slug] });
   }
 
   removeFromStudyQueue(slug: string): UserState {
     const state = this.getState();
     return this.save({
       ...state,
-      studyQueue: state.studyQueue.filter((s) => s !== slug),
+      studyQueue: state.studyQueue.filter((item) => item !== slug),
     });
   }
 
@@ -148,57 +192,45 @@ export class LocalStorageUserStore implements UserStore {
     const state = this.getState();
     return this.save({
       ...state,
-      reminders: {
-        ...state.reminders,
-        [slug]: date,
-      },
+      reminders: { ...state.reminders, [slug]: date },
     });
   }
 
   clearReminder(slug: string): UserState {
     const state = this.getState();
-    const newReminders = { ...state.reminders };
-    delete newReminders[slug];
-    return this.save({
-      ...state,
-      reminders: newReminders,
-    });
+    const reminders = { ...state.reminders };
+    delete reminders[slug];
+    return this.save({ ...state, reminders });
   }
 
   addCustomTag(slug: string, tag: string): UserState {
     const state = this.getState();
-    const prev = state.progress[slug] ?? {
-      status: "todo" as ProgressStatus,
-      confidence: 0,
-      notes: "",
-      lastSeen: new Date().toISOString(),
-      timeSpent: 0,
-      attempts: [],
-      customTags: [],
-    };
-    const tags = prev.customTags.includes(tag)
-      ? prev.customTags
-      : [...prev.customTags, tag];
+    const previous = state.progress[slug] ?? emptyProgress();
+    const customTags = previous.customTags.includes(tag)
+      ? previous.customTags
+      : [...previous.customTags, tag];
+
     return this.save({
       ...state,
       progress: {
         ...state.progress,
-        [slug]: { ...prev, customTags: tags },
+        [slug]: { ...previous, customTags },
       },
     });
   }
 
   removeCustomTag(slug: string, tag: string): UserState {
     const state = this.getState();
-    const prev = state.progress[slug];
-    if (!prev) return state;
+    const previous = state.progress[slug];
+    if (!previous) return state;
+
     return this.save({
       ...state,
       progress: {
         ...state.progress,
         [slug]: {
-          ...prev,
-          customTags: prev.customTags.filter((t) => t !== tag),
+          ...previous,
+          customTags: previous.customTags.filter((item) => item !== tag),
         },
       },
     });
@@ -206,27 +238,20 @@ export class LocalStorageUserStore implements UserStore {
 
   logAttempt(slug: string, status: ProgressStatus, confidence: number): UserState {
     const state = this.getState();
-    const prev = state.progress[slug] ?? {
-      status: "todo" as ProgressStatus,
-      confidence: 0,
-      notes: "",
-      lastSeen: new Date().toISOString(),
-      timeSpent: 0,
-      attempts: [],
-      customTags: [],
-    };
-    const newAttempt: AttemptRecord = {
+    const previous = state.progress[slug] ?? emptyProgress();
+    const attempt: AttemptRecord = {
       timestamp: new Date().toISOString(),
       status,
       confidence,
     };
+
     return this.save({
       ...state,
       progress: {
         ...state.progress,
         [slug]: {
-          ...prev,
-          attempts: [...prev.attempts, newAttempt],
+          ...previous,
+          attempts: [...previous.attempts, attempt],
           status,
           confidence,
           lastSeen: new Date().toISOString(),
@@ -237,27 +262,23 @@ export class LocalStorageUserStore implements UserStore {
 
   updateTimeSpent(slug: string, seconds: number): UserState {
     const state = this.getState();
-    const prev = state.progress[slug];
-    if (!prev) return state;
+    const previous = state.progress[slug];
+    if (!previous || seconds <= 0) return state;
+
     return this.save({
       ...state,
       progress: {
         ...state.progress,
-        [slug]: {
-          ...prev,
-          timeSpent: prev.timeSpent + seconds,
-        },
+        [slug]: { ...previous, timeSpent: previous.timeSpent + seconds },
       },
     });
   }
 }
 
-/** Singleton for client components */
 let clientStore: LocalStorageUserStore | null = null;
 
 export function getUserStore(): UserStore {
   if (typeof window === "undefined") {
-    // SSR no-op store
     return {
       getState: defaultState,
       toggleBookmark: () => defaultState(),
@@ -273,6 +294,7 @@ export function getUserStore(): UserStore {
       updateTimeSpent: () => defaultState(),
     };
   }
+
   if (!clientStore) clientStore = new LocalStorageUserStore();
   return clientStore;
 }
