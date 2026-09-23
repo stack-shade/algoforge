@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#05070a"/>
+      <stop offset="0.55" stop-color="#0a1115"/>
+      <stop offset="1" stop-color="#07110d"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity=".045"/>
+    </pattern>
+    <radialGradient id="glow" cx=".2" cy=".2" r=".7">
+      <stop offset="0" stop-color="#86efac" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#86efac" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect x="74" y="64" width="1052" height="502" rx="28" fill="#05070a" fill-opacity=".64" stroke="#26323a" stroke-width="2"/>
+  <circle cx="108" cy="101" r="8" fill="#fca5a5"/>
+  <circle cx="136" cy="101" r="8" fill="#fde68a"/>
+  <circle cx="164" cy="101" r="8" fill="#86efac"/>
+  <text x="204" y="108" fill="#94a3b8" font-size="20" font-family="monospace">algoforge — interview.sh</text>
+  <text x="110" y="220" fill="#64748b" font-size="20" font-family="monospace">~/algoforge</text>
+  <text x="110" y="268" fill="#86efac" font-size="24" font-family="monospace">$</text>
+  <text x="146" y="268" fill="#e2e8f0" font-size="24" font-family="monospace">forge status</text>
+  <text x="110" y="346" fill="#f8fafc" font-size="64" font-weight="700" font-family="system-ui, sans-serif">AlgoForge</text>
+  <text x="110" y="392" fill="#86efac" font-size="28" font-family="system-ui, sans-serif">Your coding interview command center.</text>
+  <text x="110" y="470" fill="#94a3b8" font-size="20" font-family="system-ui, sans-serif">Patterns · Roadmaps · Search · Practice · Progress</text>
+  <text x="110" y="520" fill="#67e8f9" font-size="16" font-family="monospace">pattern-first // local-first // developer-focused</text>
+</svg>

@@ -4,7 +4,8 @@ export const siteConfig = {
   description:
     "AlgoForge is a free coding interview learning platform with pattern-based problem solving, structured roadmaps, multi-language solutions, and lightweight progress tracking.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://stack-shade.github.io/algoforge",
-  ogImage: "/og-default.png",
+  basePath: "/algoforge",
+  ogImage: "/algoforge/og-default.svg",
   links: {
     github: "https://github.com/stack-shade/algoforge",
     sourceSolutions: "https://github.com/kamyu104/LeetCode-Solutions",
@@ -20,11 +21,4 @@ export const siteConfig = {
     "algorithms",
     "interview preparation",
   ],
-} as const;
-
-export const FEATURE_FLAGS = {
-  ads: false,
-  premium: false,
-  cloudSync: false,
-  turnstile: false,
 } as const;

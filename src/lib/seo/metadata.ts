@@ -3,9 +3,14 @@ import { siteConfig } from "@/lib/config";
 import type { SeoFields } from "@/lib/schema/types";
 
 export function absoluteUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
   const base = siteConfig.url.replace(/\/$/, "");
-  const p = path.startsWith("/") ? path : `/${path}`;
-  return `${base}${p}`;
+  const clean = path.startsWith("/") ? path : "/" + path;
+  const scoped =
+    siteConfig.basePath && !clean.startsWith(siteConfig.basePath + "/") && clean !== siteConfig.basePath
+      ? siteConfig.basePath + clean
+      : clean;
+  return base + scoped;
 }
 
 export function buildMetadata(seo: SeoFields, extras: Partial<Metadata> = {}): Metadata {
@@ -17,11 +22,9 @@ export function buildMetadata(seo: SeoFields, extras: Partial<Metadata> = {}): M
     title: seo.title,
     description: seo.description,
     keywords: seo.keywords,
-    alternates: {
-      canonical: url,
-    },
+    alternates: { canonical: url },
     openGraph: {
-      type: "website",
+      type: seo.canonicalPath === "/" ? "website" : "article",
       title: seo.title,
       description: seo.description,
       url,
