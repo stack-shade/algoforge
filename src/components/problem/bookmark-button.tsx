@@ -12,7 +12,6 @@ export function BookmarkButton({ slug }: { slug: string }) {
   useEffect(() => {
     const store = getUserStore();
     setActive(store.getState().bookmarks.includes(slug));
-    store.recordActivity();
   }, [slug]);
 
   function toggle() {
