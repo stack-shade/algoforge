@@ -27,10 +27,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run pipeline
+        env:
+          ALGOFORGE_UPSTREAM_REF: 4351f2d3e00b32787c2c5c4763395f681dc723df
+      - name: Quality checks
+        run: npm run check
+        env:
+          NEXT_PUBLIC_SITE_URL: https://stack-shade.github.io/algoforge
       - name: Build Next.js
         run: npm run build
         env:
           NEXT_PUBLIC_SITE_URL: https://stack-shade.github.io/algoforge
+          ALGOFORGE_UPSTREAM_REF: 4351f2d3e00b32787c2c5c4763395f681dc723df
       - name: Upload artifact
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
