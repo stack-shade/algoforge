@@ -126,13 +126,9 @@ export default async function ProblemPage({
             <div className="flex flex-wrap gap-2 pt-1">
               <BookmarkButton slug={problem.slug} />
               {problem.languages.map((lang) => (
-                <Link
-                  key={lang}
-                  href={`/problems/${problem.slug}/${lang}`}
-                  className="text-sm text-primary hover:underline"
-                >
+                <a key={lang} href="#solutions" className="text-sm text-primary hover:underline">
                   {lang}
-                </Link>
+                </a>
               ))}
             </div>
           </header>

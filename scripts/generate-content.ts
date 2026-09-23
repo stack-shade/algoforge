@@ -31,7 +31,7 @@ export function generateContent(p: ParsedProblemLike): {
   visualizationDescription: string;
   estimatedMinutes: number;
 } {
-  const topicStr = humanList(p.topics.map((t) => t.replace(/-/g, " ")));
+  const topicStr = humanList(p.topics.map((t) => t.replace(/-/g, " ")));\n  const difficultyArticle = p.difficulty === "Easy" ? "an" : "a";
   const patternStr = humanList(p.patterns.map((t) => t.replace(/-/g, " ")));
   const notesHint = p.notes.length
     ? ` Official solution notes mention: ${p.notes.slice(0, 4).join(", ")}.`
@@ -43,7 +43,7 @@ export function generateContent(p: ParsedProblemLike): {
     status: "ready",
     bodyMarkdown: `## What is ${p.title}?
 
-**${p.title}** (LeetCode #${p.number}) is a **${p.difficulty}** problem that primarily trains **${topicStr}**.
+**${p.title}** (LeetCode #${p.number}) is **${difficultyArticle} ${p.difficulty}** problem that primarily trains **${topicStr}**.
 
 ### How to think about it
 

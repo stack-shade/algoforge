@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { getSearchDocuments } from "@/lib/data/problems";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
 import { SearchClient } from "@/components/search/search-client";
@@ -11,30 +10,19 @@ export const metadata: Metadata = buildMetadata(
     keywords: ["leetcode search", "algorithm search", "coding interview search"],
     canonicalPath: "/search",
   },
-  {
-    robots: {
-      index: false,
-      follow: true,
-    },
-  },
+  { robots: { index: false, follow: true } },
 );
 
 export default function SearchPage() {
-  const documents = getSearchDocuments();
-
   return (
     <div className="container py-10 md:py-12">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Search", path: "/search" }]} />
       <header className="mt-5 max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Library search</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight">Search</h1>
-        <p className="mt-3 text-base leading-7 text-muted-foreground">
-          Find a problem, concept, company, pattern, roadmap, or guide without leaving the learning flow.
-        </p>
+        <p className="mt-3 text-base leading-7 text-muted-foreground">Find a problem, concept, company, pattern, roadmap, or guide without leaving the learning flow.</p>
       </header>
-      <div className="mt-8">
-        <SearchClient documents={documents} />
-      </div>
+      <div className="mt-8"><SearchClient /></div>
     </div>
   );
 }

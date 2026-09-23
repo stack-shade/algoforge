@@ -13,6 +13,14 @@ function formatTime(seconds: number) {
   return `${m}m`;
 }
 
+function formatSlug(slug: string) {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export function DashboardClient() {
   const [state, setState] = useState<UserState | null>(null);
 
@@ -104,7 +112,7 @@ export function DashboardClient() {
                       href={`/problems/${slug}`}
                       className="text-primary hover:underline"
                     >
-                      {slug}
+                      {formatSlug(slug)}
                     </Link>
                   </li>
                 ))}
