@@ -137,26 +137,27 @@ function TwoSumVisualizer() {
         .map((s) => s.trim())
         .filter((s) => s !== "")
         .map((s) => {
-          const num = parseInt(s, 10);
-          if (isNaN(num)) throw new Error("All items must be valid integers.");
-          return num;
+          if (!/^-?\d+$/.test(s)) {
+            throw new Error("All items must be valid integers.");
+          }
+          return Number(s);
         });
 
       if (arr.length < 2) {
         throw new Error("Please enter at least 2 numbers.");
       }
 
-      const tgt = parseInt(targetInput, 10);
-      if (isNaN(tgt)) {
+      if (!/^-?\d+$/.test(targetInput.trim())) {
         throw new Error("Target must be a valid integer.");
       }
+      const tgt = Number(targetInput.trim());
 
       setArray(arr);
       setTarget(tgt);
       setError("");
       setIsEditing(false);
-    } catch (err: any) {
-      setError(err.message || "Invalid input format.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Invalid input format.");
     }
   };
 
