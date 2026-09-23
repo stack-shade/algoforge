@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
-import { getSitemapPaths } from "@/lib/data/problems";
+import { getSitemapPaths, getProblemsIndex, PROBLEMS_PAGE_SIZE } from "@/lib/data/problems";
 import { siteConfig } from "@/lib/config";
 
 export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const paths = Array.from(new Set([...getSitemapPaths(), "/"]));
+  const problemPageCount = Math.ceil(getProblemsIndex().length / PROBLEMS_PAGE_SIZE);
+  const problemPages = Array.from({ length: Math.max(0, problemPageCount - 1) }, (_, index) => `/problems/page/${index + 2}`);
+  const paths = Array.from(new Set([...getSitemapPaths(), "/", ...problemPages]));
   const base = siteConfig.url.replace(/\/$/, "");
   const limited = paths.slice(0, 45000);
 
