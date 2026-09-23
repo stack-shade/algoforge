@@ -3,7 +3,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { RAW, GENERATED, CURATED, AI_QUEUE } from "./paths";
+import { ROOT, RAW, GENERATED, CURATED, AI_QUEUE } from "./paths";
 import { parseAllIndexes } from "./parse-index";
 import { generateContent } from "./generate-content";
 import type { Problem, SolutionFile, SearchDocument, SiteManifest, LandingPage } from "../src/lib/schema/types";
@@ -201,15 +201,42 @@ async function main() {
   // Stable sort after potential replacements
   problems.sort((a, b) => a.number - b.number);
 
-  // Related + prev/next
+  // Related + prev/next. Build inverted indexes first so relation generation
+  // evaluates only problems sharing a topic or pattern instead of every pair.
   console.log("Computing relations…");
+  const topicIndex = new Map<string, string[]>();
+  const patternIndex = new Map<string, string[]>();
+
+  for (const p of problems) {
+    for (const topic of p.topics) {
+      const list = topicIndex.get(topic) ?? [];
+      list.push(p.slug);
+      topicIndex.set(topic, list);
+    }
+    for (const pattern of p.patterns) {
+      const list = patternIndex.get(pattern) ?? [];
+      list.push(p.slug);
+      patternIndex.set(pattern, list);
+    }
+  }
+
   for (let i = 0; i < problems.length; i++) {
     const p = problems[i];
     p.prevSlug = i > 0 ? problems[i - 1].slug : null;
     p.nextSlug = i < problems.length - 1 ? problems[i + 1].slug : null;
 
-    const scored = problems
-      .filter((o) => o.slug !== p.slug)
+    const candidateSlugs = new Set<string>();
+    for (const topic of p.topics) {
+      for (const slug of topicIndex.get(topic) ?? []) candidateSlugs.add(slug);
+    }
+    for (const pattern of p.patterns) {
+      for (const slug of patternIndex.get(pattern) ?? []) candidateSlugs.add(slug);
+    }
+
+    const scored = [...candidateSlugs]
+      .filter((slug) => slug !== p.slug)
+      .map((slug) => slugToProblem.get(slug))
+      .filter((o): o is Problem => Boolean(o))
       .map((o) => ({
         slug: o.slug,
         score:
@@ -224,7 +251,6 @@ async function main() {
 
     p.relatedSlugs = scored;
   }
-
   // Write problem files + index
   console.log("Writing problem JSON…");
   const index = problems.map((p) => ({
@@ -828,6 +854,24 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
   }
   writeJson(path.join(GENERATED, "search-index.json"), searchDocs);
 
+  // Keep the large search corpus out of the HTML/JS bundle. The static build copies
+  // public/ into the final export, so the browser can fetch it only when needed.
+  const publicDir = path.join(ROOT, "public");
+  ensureDir(publicDir);
+  writeJson(path.join(publicDir, "search-index.json"), searchDocs);
+
+  // Small client-only dataset for daily/random practice.
+  writeJson(
+    path.join(publicDir, "practice-index.json"),
+    problems.map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      number: p.number,
+      difficulty: p.difficulty,
+      estimatedMinutes: p.estimatedMinutes,
+    })),
+  );
+
   // Languages index
   const langMap = new Map<string, string[]>();
   for (const p of problems) {
@@ -874,14 +918,12 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
     "/pricing",
     "/about",
     "/about/attribution",
-    "/search",
     "/practice",
-    "/dashboard",
     "/difficulty/easy",
     "/difficulty/medium",
     "/difficulty/hard",
     ...problems.map((p) => `/problems/${p.slug}`),
-    ...problems.flatMap((p) => p.languages.map((l) => `/problems/${p.slug}/${l}`)),
+
     ...topicsOut.map((t) => `/topics/${t.slug}`),
     ...patternsOut.map((t) => `/patterns/${t.slug}`),
     ...companiesOut.map((t) => `/companies/${t.slug}`),
@@ -891,6 +933,46 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
     ...[...langMap.keys()].map((l) => `/languages/${l}`),
   ];
   writeJson(path.join(GENERATED, "sitemap-paths.json"), sitemapPaths);
+
+  // Emit split XML sitemaps instead of silently truncating the URL inventory.
+  const sitemapChunkSize = 45000;
+  const sitemapDir = path.join(publicDir, "sitemaps");
+  if (fs.existsSync(sitemapDir)) fs.rmSync(sitemapDir, { recursive: true, force: true });
+  ensureDir(sitemapDir);
+
+  const escapeXml = (value: string) =>
+    value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/\x27/g, "&apos;");
+
+  const baseUrl = "https://stack-shade.github.io/algoforge";
+  const chunks: string[][] = [];
+  for (let i = 0; i < sitemapPaths.length; i += sitemapChunkSize) {
+    chunks.push(sitemapPaths.slice(i, i + sitemapChunkSize));
+  }
+
+  chunks.forEach((chunk, index) => {
+    const xml = [
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+      "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">",
+      ...chunk.map((route) => "  <url><loc>" + escapeXml(baseUrl + route) + "</loc></url>"),
+      "</urlset>",
+      "",
+    ].join("\n");
+    fs.writeFileSync(path.join(sitemapDir, "sitemap-" + (index + 1) + ".xml"), xml);
+  });
+
+  const indexXml = [
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+    "<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">",
+    ...chunks.map((_, index) => "  <sitemap><loc>" + baseUrl + "/sitemaps/sitemap-" + (index + 1) + ".xml</loc></sitemap>"),
+    "</sitemapindex>",
+    "",
+  ].join("\n");
+  fs.writeFileSync(path.join(publicDir, "sitemap.xml"), indexXml);
 
   // RSS items
   writeJson(
