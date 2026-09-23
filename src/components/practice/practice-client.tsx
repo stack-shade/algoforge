@@ -5,6 +5,7 @@ import Link from "next/link";
 import { RefreshCw, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Difficulty } from "@/lib/schema/types";
+import { siteConfig } from "@/lib/config";
 
 type PracticeProblem = {
   slug: string;
@@ -40,7 +41,7 @@ export function PracticeClient() {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    const url = new URL("practice-index.json", window.location.href);
+    const url = new URL(`${siteConfig.url}/practice-index.json`);
     fetch(url.toString(), { cache: "force-cache" })
       .then((response) => {
         if (!response.ok) throw new Error("Practice data could not be loaded.");
