@@ -16,6 +16,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function ProblemsPage() {
   const problems = getProblemsIndex();
+  const currentProblems = problems.slice(0, PROBLEMS_PAGE_SIZE);
 
   return (
     <div className="container py-10 md:py-12">
@@ -48,7 +49,8 @@ export default function ProblemsPage() {
       </div>
 
       <div className="mt-8">
-        <ProblemList problems={problems} />
+        <ProblemList problems={currentProblems} />
+        <ProblemPagination currentPage={1} totalItems={problems.length} />
       </div>
     </div>
   );
