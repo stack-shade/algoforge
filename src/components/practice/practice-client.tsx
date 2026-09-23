@@ -40,7 +40,7 @@ export function PracticeClient() {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    const url = new URL("../practice-index.json", window.location.href);
+    const url = new URL("practice-index.json", window.location.href);
     fetch(url.toString(), { cache: "force-cache" })
       .then((response) => {
         if (!response.ok) throw new Error("Practice data could not be loaded.");
