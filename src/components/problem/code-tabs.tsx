@@ -61,20 +61,22 @@ export function CodeTabs({
 
   async function copy() {
     if (!sol) return;
-    await navigator.clipboard.writeText(sol.code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+    try {
+      await navigator.clipboard.writeText(sol.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
   }
 
   return (
     <div className="rounded-xl border border-border overflow-hidden bg-code-bg text-slate-100">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-black/30 px-2 py-1.5">
-        <div className="flex flex-wrap gap-1" role="tablist" aria-label="Language">
+        <div className="flex flex-wrap gap-1" role="group" aria-label="Language">
           {langs.map((lang) => (
             <button
               key={lang}
-              role="tab"
-              aria-selected={active === lang}
               className={cn(
                 "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                 active === lang
