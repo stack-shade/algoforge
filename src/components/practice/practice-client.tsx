@@ -70,7 +70,7 @@ export function PracticeClient() {
       <section className="rounded-2xl border border-border bg-card p-6">
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">Today</p>
         <h2 className="mt-2 font-bold text-lg">Daily challenge</h2>
-        <p className="mt-2 text-sm text-muted-foreground">The same challenge stays stable for everyone for the current local calendar day.</p>
+        <p className="mt-2 text-sm text-muted-foreground">The challenge stays stable for your local calendar day.</p>
         {daily && (
           <div className="mt-4">
             <p className="font-medium">{daily.title}</p>
