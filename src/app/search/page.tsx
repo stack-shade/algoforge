@@ -4,23 +4,37 @@ import { buildMetadata } from "@/lib/seo/metadata";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
 import { SearchClient } from "@/components/search/search-client";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Search Problems, Patterns & Guides | AlgoForge",
-  description: "Instant search across problems, topics, patterns, companies, and guides.",
-  keywords: ["leetcode search", "algorithm search"],
-  canonicalPath: "/search",
-});
+export const metadata: Metadata = buildMetadata(
+  {
+    title: "Search Problems, Patterns & Guides | AlgoForge",
+    description: "Search across coding problems, topics, patterns, companies, roadmaps, and guides.",
+    keywords: ["leetcode search", "algorithm search", "coding interview search"],
+    canonicalPath: "/search",
+  },
+  {
+    robots: {
+      index: false,
+      follow: true,
+    },
+  },
+);
 
 export default function SearchPage() {
   const documents = getSearchDocuments();
+
   return (
-    <div className="container py-10">
+    <div className="container py-10 md:py-12">
       <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Search", path: "/search" }]} />
-      <h1 className="mt-4 text-3xl font-bold">Search</h1>
-      <p className="mt-2 text-muted-foreground mb-8">
-        MiniSearch-powered client index — zero server round-trips.
-      </p>
-      <SearchClient documents={documents} />
+      <header className="mt-5 max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Library search</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Search</h1>
+        <p className="mt-3 text-base leading-7 text-muted-foreground">
+          Find a problem, concept, company, pattern, roadmap, or guide without leaving the learning flow.
+        </p>
+      </header>
+      <div className="mt-8">
+        <SearchClient documents={documents} />
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -13,16 +13,16 @@ import {
   softwareApplicationJsonLd,
 } from "@/lib/seo/jsonld";
 import { siteConfig } from "@/lib/config";
-import { SearchModal } from "@/components/search/search-modal";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
   display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -30,6 +30,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   ...defaultMetadata(),
   metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.name,
+  creator: siteConfig.creator,
+  publisher: siteConfig.name,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: { icon: "/favicon.ico" },
   verification: {
     google: "_rPi-600gMFYjNa9qzMTuIQg1_aey417EeAdaiIqgFg",
@@ -43,11 +51,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${poppins.variable} ${jetbrainsMono.variable} antialiased`}>
         <ThemeProvider>
           <JsonLd data={organizationJsonLd()} />
           <JsonLd data={websiteJsonLd()} />
           <JsonLd data={softwareApplicationJsonLd()} />
+
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-QDGSX2YTBT"
             strategy="afterInteractive"
@@ -60,18 +69,12 @@ export default function RootLayout({
               gtag('config', 'G-QDGSX2YTBT');
             `}
           </Script>
-          <Script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1828915420581549"
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
+
           <SiteHeader />
           <main id="main" className="min-h-[70vh]">
             {children}
           </main>
           <SiteFooter />
-          <SearchModal />
         </ThemeProvider>
       </body>
     </html>

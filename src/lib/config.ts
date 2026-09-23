@@ -2,12 +2,12 @@ export const siteConfig = {
   name: "AlgoForge",
   tagline: "Master coding interviews with patterns, roadmaps, and solutions",
   description:
-    "AlgoForge is a free, SEO-first coding interview platform with pattern-based learning paths, curated collections (Blind 75, Grind 169), multi-language solutions, and original explanations.",
+    "AlgoForge is a free coding interview learning platform with pattern-based problem solving, structured roadmaps, multi-language solutions, and lightweight progress tracking.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://stack-shade.github.io/algoforge",
   ogImage: "/og-default.png",
   links: {
-    github: "https://github.com/kamyu104/LeetCode-Solutions",
-    twitter: "https://x.com/algoforge",
+    github: "https://github.com/stack-shade/algoforge",
+    sourceSolutions: "https://github.com/kamyu104/LeetCode-Solutions",
   },
   creator: "AlgoForge",
   keywords: [

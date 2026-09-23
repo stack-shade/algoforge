@@ -1,15 +1,24 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Bookmark, Calendar, Clock, Plus, Save, Tag, X } from "lucide-react";
 import { getUserStore, type ProgressStatus } from "@/lib/user/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Bookmark, Tag, Calendar, Plus, X, Save, RotateCcw } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface StudyPanelProps {
   slug: string;
   title: string;
+}
+
+function formatTime(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
 }
 
 export function StudyPanel({ slug, title }: StudyPanelProps) {
@@ -22,44 +31,40 @@ export function StudyPanel({ slug, title }: StudyPanelProps) {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [status, setStatus] = useState<ProgressStatus>("todo");
   const [confidence, setConfidence] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
     const state = getUserStore().getState();
     const progress = state.progress[slug];
+
     if (progress) {
-      setNotes(progress.notes);
-      setCustomTags(progress.customTags);
-      setTimeSpent(progress.timeSpent);
-      setStatus(progress.status);
-      setConfidence(progress.confidence);
+      setNotes(progress.notes ?? "");
+      setCustomTags(progress.customTags ?? []);
+      setTimeSpent(progress.timeSpent ?? 0);
+      setStatus(progress.status ?? "todo");
+      setConfidence(progress.confidence ?? 0);
     }
+
     setInQueue(state.studyQueue.includes(slug));
-    setReminder(state.reminders[slug] || null);
+    setReminder(state.reminders[slug] ?? null);
   }, [slug]);
 
   useEffect(() => {
-    if (isTimerRunning) {
-      startTimeRef.current = Date.now();
-      timerRef.current = setInterval(() => {
-        setTimeSpent((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+    if (!isTimerRunning) return;
+
+    startTimeRef.current = Date.now();
+    timerRef.current = setInterval(() => {
+      setTimeSpent((previous) => previous + 1);
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+
       if (startTimeRef.current) {
         const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
-        if (elapsed > 0) {
-          getUserStore().updateTimeSpent(slug, elapsed);
-        }
+        if (elapsed > 0) getUserStore().updateTimeSpent(slug, elapsed);
         startTimeRef.current = null;
-      }
-    }
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
       }
     };
   }, [isTimerRunning, slug]);
@@ -69,222 +74,156 @@ export function StudyPanel({ slug, title }: StudyPanelProps) {
   }
 
   function addTag() {
-    if (!newTag.trim()) return;
-    getUserStore().addCustomTag(slug, newTag.trim().toLowerCase());
-    setCustomTags((prev) => [...prev, newTag.trim().toLowerCase()]);
+    const tag = newTag.trim().toLowerCase();
+    if (!tag || customTags.includes(tag)) return;
+    getUserStore().addCustomTag(slug, tag);
+    setCustomTags((previous) => [...previous, tag]);
     setNewTag("");
   }
 
   function removeTag(tag: string) {
     getUserStore().removeCustomTag(slug, tag);
-    setCustomTags((prev) => prev.filter((t) => t !== tag));
+    setCustomTags((previous) => previous.filter((item) => item !== tag));
   }
 
   function toggleQueue() {
-    if (inQueue) {
-      getUserStore().removeFromStudyQueue(slug);
-    } else {
-      getUserStore().addToStudyQueue(slug);
-    }
-    setInQueue(!inQueue);
+    if (inQueue) getUserStore().removeFromStudyQueue(slug);
+    else getUserStore().addToStudyQueue(slug);
+    setInQueue((previous) => !previous);
   }
 
-  function setOneDayReminder() {
+  function toggleReminder() {
+    if (reminder) {
+      getUserStore().clearReminder(slug);
+      setReminder(null);
+      return;
+    }
+
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    getUserStore().setReminder(slug, tomorrow.toISOString());
-    setReminder(tomorrow.toISOString());
+    const value = tomorrow.toISOString();
+    getUserStore().setReminder(slug, value);
+    setReminder(value);
   }
 
-  function clearReminderAction() {
-    getUserStore().clearReminder(slug);
-    setReminder(null);
-  }
-
-  function logAttempt(newStatus: ProgressStatus, newConfidence: number) {
-    getUserStore().logAttempt(slug, newStatus, newConfidence);
-    setStatus(newStatus);
-    setConfidence(newConfidence);
-  }
-
-  function formatTime(seconds: number) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    if (h > 0) {
-      return `${h}h ${m}m ${s}s`;
-    } else if (m > 0) {
-      return `${m}m ${s}s`;
-    }
-    return `${s}s`;
+  function logAttempt(nextStatus: ProgressStatus, nextConfidence: number) {
+    getUserStore().logAttempt(slug, nextStatus, nextConfidence);
+    setStatus(nextStatus);
+    setConfidence(nextConfidence);
   }
 
   return (
-    <div className="space-y-4">
-      {/* Timer */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            Time Spent
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-mono font-bold">{formatTime(timeSpent)}</span>
+    <Card aria-label={`Study tools for ${title}`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold">Study tools</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Local controls for review and recall.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm font-semibold tabular-nums">{formatTime(timeSpent)}</span>
             <Button
               size="sm"
-              variant={isTimerRunning ? "destructive" : "default"}
-              onClick={() => setIsTimerRunning(!isTimerRunning)}
+              variant={isTimerRunning ? "destructive" : "outline"}
+              onClick={() => setIsTimerRunning((previous) => !previous)}
             >
+              <Clock className="mr-1.5 h-3.5 w-3.5" />
               {isTimerRunning ? "Stop" : "Start"}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Notes */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Save className="h-4 w-4" />
-            Personal Notes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add your personal notes, insights, or reminders..."
-            className="w-full min-h-[120px] text-sm bg-background border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary resize-y"
-          />
-          <Button size="sm" onClick={saveNotes} className="w-full">
-            Save Notes
-          </Button>
-        </CardContent>
-      </Card>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[
+            ["solved", "Solved", 5],
+            ["attempted", "Tried", 3],
+            ["review", "Review", 2],
+          ].map(([value, label, score]) => (
+            <Button
+              key={value}
+              size="sm"
+              variant={status === value ? "default" : "outline"}
+              onClick={() => logAttempt(value as ProgressStatus, score as number)}
+              className="h-9 text-xs"
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
 
-      {/* Custom Tags */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Tag className="h-4 w-4" />
-            Custom Tags
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder="Add tag..."
-              className="flex-1 text-sm bg-background border border-border rounded-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
-              onKeyDown={(e) => e.key === "Enter" && addTag()}
+        {confidence > 0 && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Confidence recorded: {confidence}/5
+          </p>
+        )}
+
+        <details className="mt-4 group">
+          <summary className="cursor-pointer list-none border-t border-border pt-3 text-xs font-medium text-muted-foreground group-open:text-foreground">
+            Personal notes & tags
+          </summary>
+          <div className="mt-3 space-y-3">
+            <textarea
+              value={notes}
+              onChange={(event) => setNotes(event.target.value)}
+              placeholder="Write the idea you want to remember…"
+              className="min-h-24 w-full resize-y rounded-xl border border-border bg-background px-3 py-2 text-sm leading-6 outline-none focus:ring-2 focus:ring-ring"
             />
-            <Button size="sm" variant="outline" onClick={addTag}>
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {customTags.map((tag) => (
-              <Badge key={tag} variant="muted" className="gap-1">
-                {tag}
-                <button
-                  type="button"
-                  onClick={() => removeTag(tag)}
-                  className="ml-1 hover:text-destructive"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Study Queue */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Bookmark className="h-4 w-4" />
-            Study Queue
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Button
-            size="sm"
-            variant={inQueue ? "default" : "outline"}
-            onClick={toggleQueue}
-            className="w-full"
-          >
-            {inQueue ? "Remove from Queue" : "Add to Queue"}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Reminder */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Review Reminder
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {reminder ? (
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                Set for: {new Date(reminder).toLocaleDateString()}
-              </span>
-              <Button size="sm" variant="outline" onClick={clearReminderAction}>
-                <RotateCcw className="h-3 w-3" />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={saveNotes}>
+                <Save className="mr-1.5 h-3.5 w-3.5" />
+                Save
               </Button>
+              <div className="flex min-w-0 flex-1 gap-2">
+                <input
+                  value={newTag}
+                  onChange={(event) => setNewTag(event.target.value)}
+                  onKeyDown={(event) => event.key === "Enter" && addTag()}
+                  placeholder="Add a tag"
+                  className="min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring"
+                />
+                <Button size="sm" variant="outline" onClick={addTag} aria-label="Add tag">
+                  <Plus className="h-3.5 w-3.5" />
+                </Button>
+              </div>
             </div>
-          ) : (
-            <Button size="sm" variant="outline" onClick={setOneDayReminder} className="w-full">
-              Remind me tomorrow
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+            {customTags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {customTags.map((tag) => (
+                  <Badge key={tag} variant="muted" className="gap-1">
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="rounded-full hover:text-destructive"
+                      aria-label={`Remove ${tag} tag`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </details>
 
-      {/* Quick Attempt Log */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold">Quick Log</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex flex-wrap gap-1">
-            <Button
-              size="sm"
-              variant={status === "solved" ? "default" : "outline"}
-              onClick={() => logAttempt("solved", 5)}
-            >
-              Solved
+        <details className="mt-3 group">
+          <summary className="cursor-pointer list-none border-t border-border pt-3 text-xs font-medium text-muted-foreground group-open:text-foreground">
+            Queue & review reminder
+          </summary>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button size="sm" variant={inQueue ? "default" : "outline"} onClick={toggleQueue}>
+              <Bookmark className="mr-1.5 h-3.5 w-3.5" />
+              {inQueue ? "Queued" : "Add to queue"}
             </Button>
-            <Button
-              size="sm"
-              variant={status === "attempted" ? "default" : "outline"}
-              onClick={() => logAttempt("attempted", 3)}
-            >
-              Attempted
-            </Button>
-            <Button
-              size="sm"
-              variant={status === "review" ? "default" : "outline"}
-              onClick={() => logAttempt("review", 2)}
-            >
-              Needs Review
+            <Button size="sm" variant={reminder ? "default" : "outline"} onClick={toggleReminder}>
+              <Calendar className="mr-1.5 h-3.5 w-3.5" />
+              {reminder ? "Tomorrow set" : "Review tomorrow"}
             </Button>
           </div>
-          {confidence > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Confidence: {confidence}/5
-            </p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        </details>
+      </CardContent>
+    </Card>
   );
 }
