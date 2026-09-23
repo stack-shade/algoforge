@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import MiniSearch from "minisearch";
 import type { SearchDocument } from "@/lib/schema/types";
+import { siteConfig } from "@/lib/config";
 import { DifficultyBadge } from "@/components/ui/badge";
 
 export function SearchClient() {
@@ -18,7 +19,7 @@ export function SearchClient() {
 
     setRequested(true);
     setLoading(true);
-    const url = new URL("search-index.json", window.location.href);
+    const url = new URL(`${siteConfig.url}/search-index.json`);
 
     fetch(url.toString(), { cache: "force-cache" })
       .then((response) => {
