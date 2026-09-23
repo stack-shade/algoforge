@@ -48,7 +48,7 @@ export function SiteFooter() {
         <p>
           Solution code sourced under MIT from{" "}
           <a
-            href={siteConfig.links.github}
+            href={siteConfig.links.sourceSolutions}
             className="underline hover:text-primary"
             rel="noopener noreferrer"
             target="_blank"
