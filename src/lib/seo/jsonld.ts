@@ -19,14 +19,6 @@ export function websiteJsonLd() {
     name: siteConfig.name,
     url: siteConfig.url,
     description: siteConfig.description,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${siteConfig.url}/search?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
   };
 }
 
@@ -81,7 +73,7 @@ export function articleJsonLd(opts: {
   datePublished?: string;
   dateModified?: string;
 }) {
-  return {
+  const data: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: opts.title,
@@ -95,9 +87,12 @@ export function articleJsonLd(opts: {
       "@type": "Organization",
       name: siteConfig.name,
     },
-    datePublished: opts.datePublished ?? "2026-01-01",
-    dateModified: opts.dateModified ?? opts.datePublished ?? new Date().toISOString().slice(0, 10),
   };
+
+  if (opts.datePublished) data.datePublished = opts.datePublished;
+  if (opts.dateModified) data.dateModified = opts.dateModified;
+
+  return data;
 }
 
 export function howToJsonLd(opts: {
