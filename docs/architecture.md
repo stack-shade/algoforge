@@ -33,4 +33,4 @@ MiniSearch over `search-index.json` (client). Swap to Meilisearch by replacing `
 
 - Per-problem JSON files avoid one giant bundle
 - `generateStaticParams` drives SSG for catalog routes
-- Sitemap capped at 45k URLs initially; split sitemaps when exceeding limits
+- Search index is lazy-loaded by the client; generated XML sitemaps are split into 45k-URL chunks.\n- Upstream data is fetched from a pinned revision in CI; `fetch-meta.json` records the exact commit.
