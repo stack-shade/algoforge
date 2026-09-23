@@ -18,7 +18,7 @@ export function SearchClient() {
 
     setRequested(true);
     setLoading(true);
-    const url = new URL("../search-index.json", window.location.href);
+    const url = new URL("search-index.json", window.location.href);
 
     fetch(url.toString(), { cache: "force-cache" })
       .then((response) => {
