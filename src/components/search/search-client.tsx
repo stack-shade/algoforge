@@ -10,11 +10,13 @@ export function SearchClient() {
   const [query, setQuery] = useState("");
   const [documents, setDocuments] = useState<SearchDocument[]>([]);
   const [loading, setLoading] = useState(false);
+  const [requested, setRequested] = useState(false);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    if (!query.trim() || documents.length > 0 || loading) return;
+    if (!query.trim() || requested || loading) return;
 
+    setRequested(true);
     setLoading(true);
     const url = new URL("../search-index.json", window.location.href);
 
@@ -28,7 +30,7 @@ export function SearchClient() {
         setError(err instanceof Error ? err.message : "Search index could not be loaded.");
       })
       .finally(() => setLoading(false));
-  }, [query, documents.length, loading]);
+  }, [query, requested, loading]);
 
   const index = useMemo(() => {
     if (!documents.length) return null;
