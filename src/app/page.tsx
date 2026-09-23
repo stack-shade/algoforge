@@ -4,6 +4,8 @@ import { getManifest, getProblemsIndex, getTopicsIndex, getRoadmapsIndex } from 
 import { DifficultyBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TerminalHero } from "@/components/terminal/terminal-hero";
+
 
 export default function HomePage() {
   const manifest = getManifest();
@@ -12,51 +14,13 @@ export default function HomePage() {
   const roadmaps = getRoadmapsIndex().slice(0, 4);
 
   return (
-    <div>
-      <section className="border-b border-border">
-        <div className="container py-16 md:py-24">
-          <div className="max-w-4xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
-              A calmer way to learn DSA
-            </p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.03em] leading-[1.08] md:text-6xl">
-              Learn the pattern. Solve the problem. Remember the idea.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-              AlgoForge turns thousands of coding problems into a structured study system built around patterns,
-              roadmaps, focused practice, and lightweight progress tracking.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button asChild size="lg">
-                <Link href="/roadmaps/dsa-fundamentals">
-                  Start a roadmap
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/problems">Browse problems</Link>
-              </Button>
-            </div>
-          </div>
-
-          {manifest && (
-            <div className="mt-14 grid grid-cols-2 divide-x divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-4 sm:divide-y-0">
-              {[
-                ["Problems", manifest.problemCount],
-                ["Patterns", manifest.patternCount],
-                ["Topics", manifest.topicCount],
-                ["Languages", manifest.languages.length],
-              ].map(([label, value]) => (
-                <div key={label} className="px-5 py-5 sm:px-6">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-                  <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+    <div className="site-shell">
+      <TerminalHero
+        problemCount={manifest?.problemCount ?? 0}
+        patternCount={manifest?.patternCount ?? 0}
+        topicCount={manifest?.topicCount ?? 0}
+        languageCount={manifest?.languages.length ?? 0}
+      />
 
       <section className="container py-14 md:py-18">
         <div className="flex flex-col gap-2">
