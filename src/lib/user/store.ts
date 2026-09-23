@@ -1,5 +1,5 @@
 /**
- * Local-first user store. Cloud sync implements the same interface later.
+ * Local-first user store. Cloud sync can implement the same interface later.
  */
 
 export type ProgressStatus = "todo" | "attempted" | "solved" | "review";
@@ -68,7 +68,7 @@ const defaultState = (): UserState => ({
 
 function normalizeState(input: unknown): UserState {
   const parsed = input && typeof input === "object" ? (input as Partial<UserState>) : {};
-  const rawProgress = parsed.progress ?? {};
+  const rawProgress = parsed.progress && typeof parsed.progress === "object" ? parsed.progress : {};
 
   const progress = Object.fromEntries(
     Object.entries(rawProgress).map(([slug, value]) => {
@@ -78,9 +78,18 @@ function normalizeState(input: unknown): UserState {
         {
           ...emptyProgress(),
           ...item,
+          confidence:
+            typeof item.confidence === "number"
+              ? Math.max(0, Math.min(5, Math.floor(item.confidence)))
+              : 0,
           attempts: Array.isArray(item.attempts) ? item.attempts : [],
-          customTags: Array.isArray(item.customTags) ? item.customTags : [],
-          timeSpent: typeof item.timeSpent === "number" ? item.timeSpent : 0,
+          customTags: Array.isArray(item.customTags)
+            ? item.customTags.filter((tag): tag is string => typeof tag === "string")
+            : [],
+          timeSpent:
+            typeof item.timeSpent === "number" && Number.isFinite(item.timeSpent)
+              ? Math.max(0, Math.floor(item.timeSpent))
+              : 0,
         },
       ];
     }),
@@ -94,23 +103,35 @@ function normalizeState(input: unknown): UserState {
   return {
     ...defaultState(),
     ...parsed,
-    bookmarks: Array.isArray(parsed.bookmarks) ? parsed.bookmarks : [],
+    bookmarks: Array.isArray(parsed.bookmarks)
+      ? [...new Set(parsed.bookmarks.filter((v): v is string => typeof v === "string"))]
+      : [],
     progress,
     streak: {
-      current: typeof streak.current === "number" ? streak.current : 0,
+      current:
+        typeof streak.current === "number"
+          ? Math.max(0, Math.floor(streak.current))
+          : 0,
       lastDate: typeof streak.lastDate === "string" ? streak.lastDate : null,
     },
-    studyQueue: Array.isArray(parsed.studyQueue) ? parsed.studyQueue : [],
+    studyQueue: Array.isArray(parsed.studyQueue)
+      ? [...new Set(parsed.studyQueue.filter((v): v is string => typeof v === "string"))]
+      : [],
     reminders:
       parsed.reminders && typeof parsed.reminders === "object"
-        ? parsed.reminders
+        ? Object.fromEntries(
+            Object.entries(parsed.reminders).filter(([, value]) => typeof value === "string"),
+          )
         : {},
     version: 1,
   };
 }
 
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
+function todayKey(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
 }
 
 export class LocalStorageUserStore implements UserStore {
@@ -127,8 +148,11 @@ export class LocalStorageUserStore implements UserStore {
   }
 
   private save(state: UserState): UserState {
-    if (typeof window !== "undefined") {
+    if (typeof window === "undefined") return state;
+    try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // Storage can be unavailable or full; keep the in-memory state usable.
     }
     return state;
   }
@@ -151,6 +175,10 @@ export class LocalStorageUserStore implements UserStore {
         [slug]: {
           ...previous,
           ...patch,
+          confidence:
+            typeof patch.confidence === "number"
+              ? Math.max(0, Math.min(5, Math.floor(patch.confidence)))
+              : previous.confidence,
           lastSeen: new Date().toISOString(),
         },
       },
@@ -164,9 +192,9 @@ export class LocalStorageUserStore implements UserStore {
 
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yKey = yesterday.toISOString().slice(0, 10);
+    const yesterdayKey = todayKey(yesterday);
     const current =
-      state.streak.lastDate === yKey ? state.streak.current + 1 : 1;
+      state.streak.lastDate === yesterdayKey ? state.streak.current + 1 : 1;
 
     return this.save({
       ...state,
@@ -189,11 +217,9 @@ export class LocalStorageUserStore implements UserStore {
   }
 
   setReminder(slug: string, date: string): UserState {
+    if (Number.isNaN(Date.parse(date))) return this.getState();
     const state = this.getState();
-    return this.save({
-      ...state,
-      reminders: { ...state.reminders, [slug]: date },
-    });
+    return this.save({ ...state, reminders: { ...state.reminders, [slug]: date } });
   }
 
   clearReminder(slug: string): UserState {
@@ -204,17 +230,20 @@ export class LocalStorageUserStore implements UserStore {
   }
 
   addCustomTag(slug: string, tag: string): UserState {
+    const normalizedTag = tag.trim().toLowerCase();
+    if (!normalizedTag) return this.getState();
+
     const state = this.getState();
     const previous = state.progress[slug] ?? emptyProgress();
-    const customTags = previous.customTags.includes(tag)
+    const customTags = previous.customTags.includes(normalizedTag)
       ? previous.customTags
-      : [...previous.customTags, tag];
+      : [...previous.customTags, normalizedTag];
 
     return this.save({
       ...state,
       progress: {
         ...state.progress,
-        [slug]: { ...previous, customTags },
+        [slug]: { ...previous, customTags, lastSeen: new Date().toISOString() },
       },
     });
   }
@@ -231,6 +260,7 @@ export class LocalStorageUserStore implements UserStore {
         [slug]: {
           ...previous,
           customTags: previous.customTags.filter((item) => item !== tag),
+          lastSeen: new Date().toISOString(),
         },
       },
     });
@@ -239,13 +269,15 @@ export class LocalStorageUserStore implements UserStore {
   logAttempt(slug: string, status: ProgressStatus, confidence: number): UserState {
     const state = this.getState();
     const previous = state.progress[slug] ?? emptyProgress();
+    const nextConfidence = Math.max(0, Math.min(5, Math.floor(confidence)));
+    const now = new Date().toISOString();
     const attempt: AttemptRecord = {
-      timestamp: new Date().toISOString(),
+      timestamp: now,
       status,
-      confidence,
+      confidence: nextConfidence,
     };
 
-    return this.save({
+    const saved = this.save({
       ...state,
       progress: {
         ...state.progress,
@@ -253,23 +285,49 @@ export class LocalStorageUserStore implements UserStore {
           ...previous,
           attempts: [...previous.attempts, attempt],
           status,
-          confidence,
-          lastSeen: new Date().toISOString(),
+          confidence: nextConfidence,
+          lastSeen: now,
         },
       },
+    });
+
+    return this.recordActivityFromState(saved);
+  }
+
+  private recordActivityFromState(state: UserState): UserState {
+    const today = todayKey();
+    if (state.streak.lastDate === today) return state;
+
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const current =
+      state.streak.lastDate === todayKey(yesterday)
+        ? state.streak.current + 1
+        : 1;
+
+    return this.save({
+      ...state,
+      streak: { current, lastDate: today },
     });
   }
 
   updateTimeSpent(slug: string, seconds: number): UserState {
     const state = this.getState();
-    const previous = state.progress[slug];
-    if (!previous || seconds <= 0) return state;
+    const previous = state.progress[slug] ?? emptyProgress();
+    const safeSeconds = Number.isFinite(seconds)
+      ? Math.max(0, Math.floor(seconds))
+      : 0;
+    if (safeSeconds <= 0) return state;
 
     return this.save({
       ...state,
       progress: {
         ...state.progress,
-        [slug]: { ...previous, timeSpent: previous.timeSpent + seconds },
+        [slug]: {
+          ...previous,
+          timeSpent: previous.timeSpent + safeSeconds,
+          lastSeen: new Date().toISOString(),
+        },
       },
     });
   }
