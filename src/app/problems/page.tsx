@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
-import { getProblemsIndex } from "@/lib/data/problems";
+import { getProblemsIndex, PROBLEMS_PAGE_SIZE } from "@/lib/data/problems";
 import { ProblemList } from "@/components/problem/problem-list";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
-import { buildMetadata } from "@/lib/seo/metadata";
+import { buildMetadata } from "@/lib/seo/metadata";\nimport { ProblemPagination } from "@/components/problem/problem-pagination";
 
 export const metadata: Metadata = buildMetadata({
   title: "LeetCode Problems — Solutions, Patterns & Complexity | AlgoForge",
   description:
-    "Browse 3,000+ coding interview problems with original explanations, multi-language solutions, pattern tags, companies, and complexity notes.",
+    "Browse 3,000+ coding interview problems with original explanations, multi-language solutions, pattern tags, companies, and complexity notes. Problems are split into fast, crawlable pages for easier study.",
   keywords: ["leetcode problems", "coding interview problems", "dsa problems", "algorithm solutions"],
   canonicalPath: "/problems",
 });
