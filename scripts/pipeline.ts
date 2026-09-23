@@ -930,7 +930,7 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
     ...roadmaps.map((r) => `/roadmaps/${r.slug}`),
     ...blogs.map((b) => `/blog/${b.slug}`),
     ...landings.map((l) => l.path),
-    ...[...langMap.keys()].map((l) => `/languages/${l}`),
+
   ]));
   writeJson(path.join(GENERATED, "sitemap-paths.json"), sitemapPaths);
 
