@@ -900,7 +900,7 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
   }
 
   // Sitemap entries
-  const sitemapPaths = [
+  const sitemapPaths = Array.from(new Set([
     "/",
     "/problems",
     "/topics",
@@ -931,7 +931,7 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
     ...blogs.map((b) => `/blog/${b.slug}`),
     ...landings.map((l) => l.path),
     ...[...langMap.keys()].map((l) => `/languages/${l}`),
-  ];
+  ]));
   writeJson(path.join(GENERATED, "sitemap-paths.json"), sitemapPaths);
 
   // Emit split XML sitemaps instead of silently truncating the URL inventory.
@@ -948,7 +948,7 @@ See [Longest Substring Without Repeating Characters](/problems/longest-substring
       .replace(/"/g, "&quot;")
       .replace(/\x27/g, "&apos;");
 
-  const baseUrl = "https://stack-shade.github.io/algoforge";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://stack-shade.github.io/algoforge").replace(/\/$/, "");
   const chunks: string[][] = [];
   for (let i = 0; i < sitemapPaths.length; i += sitemapChunkSize) {
     chunks.push(sitemapPaths.slice(i, i + sitemapChunkSize));
