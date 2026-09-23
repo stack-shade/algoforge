@@ -20,18 +20,20 @@ export function buildMetadata(seo: SeoFields, extras?: Partial<Metadata>): Metad
       canonical: url,
     },
     openGraph: {
+      type: "website",
       title: seo.title,
       description: seo.description,
       url,
       siteName: siteConfig.name,
-      type: "article",
       images: [{ url: absoluteUrl(ogImage), width: 1200, height: 630, alt: seo.title }],
+      ...(extras?.openGraph ?? {}),
     },
     twitter: {
       card: "summary_large_image",
       title: seo.title,
       description: seo.description,
       images: [absoluteUrl(ogImage)],
+      ...(extras?.twitter ?? {}),
     },
     ...extras,
   };
