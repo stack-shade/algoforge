@@ -7,7 +7,7 @@ import { getUserStore } from "@/lib/user/store";
 import { cn } from "@/lib/utils/cn";
 
 export function BookmarkButton({ slug }: { slug: string }) {
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(() => typeof window !== "undefined" && getUserStore().getState().bookmarks.includes(slug));
 
   useEffect(() => {
     const store = getUserStore();
