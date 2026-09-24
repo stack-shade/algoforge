@@ -9,14 +9,6 @@ export function ConfidenceTracker({ slug }: { slug: string }) {
   const [confidence, setConfidence] = useState(initial?.confidence ?? 0);
   const [status, setStatus] = useState<ProgressStatus>(initial?.status ?? "todo");
 
-  useEffect(() => {
-    const p = getUserStore().getState().progress[slug];
-    if (p) {
-      setConfidence(p.confidence);
-      setStatus(p.status);
-    }
-  }, [slug]);
-
   function update(c: number) {
     setConfidence(c);
     const nextStatus: ProgressStatus =
