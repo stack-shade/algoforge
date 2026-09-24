@@ -110,7 +110,7 @@ export function TerminalHero({
               <div className="rounded-[1.5rem] border border-border/70 bg-background/70 p-4 sm:p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">today's study card</p>
+                    <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">today&apos;s study card</p>
                     <p className="mt-1 text-lg font-black tracking-tight">Sliding Window</p>
                   </div>
                   <span className="rounded-full bg-primary/12 px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-[0.12em] text-primary">
