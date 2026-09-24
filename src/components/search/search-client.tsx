@@ -14,9 +14,8 @@ export function SearchClient() {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    if (!query.trim() || requested || loading) return;
+    if (!query.trim() || documents.length || loading) return;
 
-    setRequested(true);
     setLoading(true);
     const url = new URL(`${siteConfig.url}/search-index.json`);
 
