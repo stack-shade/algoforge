@@ -9,11 +9,6 @@ import { cn } from "@/lib/utils/cn";
 export function BookmarkButton({ slug }: { slug: string }) {
   const [active, setActive] = useState(() => typeof window !== "undefined" && getUserStore().getState().bookmarks.includes(slug));
 
-  useEffect(() => {
-    const store = getUserStore();
-    setActive(store.getState().bookmarks.includes(slug));
-  }, [slug]);
-
   function toggle() {
     const state = getUserStore().toggleBookmark(slug);
     setActive(state.bookmarks.includes(slug));
