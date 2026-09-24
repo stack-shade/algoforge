@@ -29,7 +29,7 @@ export function SearchClient() {
         setError(err instanceof Error ? err.message : "Search index could not be loaded.");
       })
       .finally(() => setLoading(false));
-  }, [query, requested, loading]);
+  }, [query, documents.length, loading]);
 
   const index = useMemo(() => {
     if (!documents.length) return null;
