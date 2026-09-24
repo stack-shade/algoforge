@@ -11,7 +11,6 @@ export function SearchClient() {
   const [query, setQuery] = useState("");
   const [documents, setDocuments] = useState<SearchDocument[]>([]);
   const [loading, setLoading] = useState(false);
-  const [requested, setRequested] = useState(false);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
