@@ -31,7 +31,8 @@ export function generateContent(p: ParsedProblemLike): {
   visualizationDescription: string;
   estimatedMinutes: number;
 } {
-  const topicStr = humanList(p.topics.map((t) => t.replace(/-/g, " ")));\n  const difficultyArticle = p.difficulty === "Easy" ? "an" : "a";
+  const topicStr = humanList(p.topics.map((t) => t.replace(/-/g, " ")));
+  const difficultyArticle = p.difficulty === "Easy" ? "an" : "a";
   const patternStr = humanList(p.patterns.map((t) => t.replace(/-/g, " ")));
   const notesHint = p.notes.length
     ? ` Official solution notes mention: ${p.notes.slice(0, 4).join(", ")}.`
