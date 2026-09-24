@@ -4,7 +4,8 @@ import { ArrowRight, Search } from "lucide-react";
 import { getProblemsIndex, PROBLEMS_PAGE_SIZE } from "@/lib/data/problems";
 import { ProblemList } from "@/components/problem/problem-list";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
-import { buildMetadata } from "@/lib/seo/metadata";\nimport { ProblemPagination } from "@/components/problem/problem-pagination";
+import { buildMetadata } from "@/lib/seo/metadata";
+import { ProblemPagination } from "@/components/problem/problem-pagination";
 
 export const metadata: Metadata = buildMetadata({
   title: "LeetCode Problems — Solutions, Patterns & Complexity | AlgoForge",
