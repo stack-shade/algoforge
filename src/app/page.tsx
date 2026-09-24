@@ -158,7 +158,7 @@ export default function HomePage() {
                 ["/topics", "Topic library", `${topics.length} featured topics to explore.`],
                 ["/dashboard", "Your progress", "Keep bookmarks, streaks, notes, and review queue in your browser."],
               ].map(([href, title, desc]) => (
-                <Link key={href} href={href} className="group rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/30">
+                <Link key={href} href={href} className="group cute-card rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/30">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium">{title}</p>
@@ -175,7 +175,7 @@ export default function HomePage() {
 
       <section className="border-t border-border">
         <div className="container py-14">
-          <div className="rounded-3xl border border-border bg-card p-6 md:p-8">
+          <div className="cute-card rounded-3xl border border-border bg-card p-6 md:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div className="max-w-2xl">
                 <div className="flex items-center gap-2 text-sm font-semibold text-primary">
