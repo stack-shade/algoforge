@@ -22,7 +22,7 @@ function formatSlug(slug: string) {
 }
 
 export function DashboardClient() {
-  const [state, setState] = useState<UserState | null>(null);
+  const [state, setState] = useState<UserState | null>(() => typeof window === "undefined" ? null : getUserStore().getState());
 
   useEffect(() => {
     setState(getUserStore().getState());
