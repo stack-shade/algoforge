@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getUserStore, type ProgressStatus } from "@/lib/user/store";
 import { cn } from "@/lib/utils/cn";
 
