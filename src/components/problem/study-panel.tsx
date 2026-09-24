@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, Calendar, Clock, Plus, Save, Tag, X } from "lucide-react";
+import { Bookmark, Calendar, Clock, Plus, Save, X } from "lucide-react";
 import { getUserStore, type ProgressStatus } from "@/lib/user/store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
