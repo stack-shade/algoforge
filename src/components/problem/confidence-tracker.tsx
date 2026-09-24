@@ -5,8 +5,9 @@ import { getUserStore, type ProgressStatus } from "@/lib/user/store";
 import { cn } from "@/lib/utils/cn";
 
 export function ConfidenceTracker({ slug }: { slug: string }) {
-  const [confidence, setConfidence] = useState(0);
-  const [status, setStatus] = useState<ProgressStatus>("todo");
+  const initial = typeof window !== "undefined" ? getUserStore().getState().progress[slug] : undefined;
+  const [confidence, setConfidence] = useState(initial?.confidence ?? 0);
+  const [status, setStatus] = useState<ProgressStatus>(initial?.status ?? "todo");
 
   useEffect(() => {
     const p = getUserStore().getState().progress[slug];
