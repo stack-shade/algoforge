@@ -35,11 +35,7 @@ export function CodeTabs({
     defaultLang && solutions[defaultLang] ? defaultLang : langs[0] ?? ""
   );
   const [copied, setCopied] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [mounted] = useState(() => typeof window !== "undefined");
 
   const sol = solutions[active];
 
