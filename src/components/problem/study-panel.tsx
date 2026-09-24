@@ -34,21 +34,6 @@ export function StudyPanel({ slug, title }: StudyPanelProps) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    const state = getUserStore().getState();
-    const progress = state.progress[slug];
-
-    if (progress) {
-      setNotes(progress.notes ?? "");
-      setCustomTags(progress.customTags ?? []);
-      setTimeSpent(progress.timeSpent ?? 0);
-      setStatus(progress.status ?? "todo");
-      setConfidence(progress.confidence ?? 0);
-    }
-
-    setInQueue(state.studyQueue.includes(slug));
-    setReminder(state.reminders[slug] ?? null);
-  }, [slug]);
 
   useEffect(() => {
     if (!isTimerRunning) return;
