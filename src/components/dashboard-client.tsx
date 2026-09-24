@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { getUserStore, type UserState } from "@/lib/user/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 function formatTime(seconds: number) {
   const h = Math.floor(seconds / 3600);
@@ -22,7 +21,7 @@ function formatSlug(slug: string) {
 }
 
 export function DashboardClient() {
-  const [state, setState] = useState<UserState | null>(() => typeof window === "undefined" ? null : getUserStore().getState());
+  const [state] = useState<UserState | null>(() => typeof window === "undefined" ? null : getUserStore().getState());
 
   if (!state) {
     return <p className="text-sm text-muted-foreground">Loading local progress…</p>;
