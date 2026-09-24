@@ -18,7 +18,9 @@ import {
   hasGeneratedData,
 } from "./fs";
 
-export { hasGeneratedData };\n\nexport const PROBLEMS_PAGE_SIZE = 100;
+export { hasGeneratedData };
+
+export const PROBLEMS_PAGE_SIZE = 100;
 
 export function getProblemsIndex(): ProblemIndexEntry[] {
   return readGeneratedJson<ProblemIndexEntry[]>("problems-index.json") ?? [];
