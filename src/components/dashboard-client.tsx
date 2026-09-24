@@ -24,10 +24,6 @@ function formatSlug(slug: string) {
 export function DashboardClient() {
   const [state, setState] = useState<UserState | null>(() => typeof window === "undefined" ? null : getUserStore().getState());
 
-  useEffect(() => {
-    setState(getUserStore().getState());
-  }, []);
-
   if (!state) {
     return <p className="text-sm text-muted-foreground">Loading local progress…</p>;
   }
